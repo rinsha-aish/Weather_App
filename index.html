@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="card">
+      <div class="search">
+        <input type="text" placeholder="Enter city name" spellcheck="false" />
+        <button><img src="images/search.png" alt="search" /></button>
+      </div>
+
+      <div class="error">
+        <p>Invalid city name</p>
+      </div>
+      <div class="weather">
+        <img src="images/rain.png" alt="rain icon" class="weather-icon" />
+        <h1 class="temp">22°C</h1>
+        <h2 class="city">New York</h2>
+        <div class="details">
+          <div class="col">
+            <img src="images/humidity.png" alt="humidity" />
+            <div>
+              <p class="humidity">50%</p>
+              <p>Humidity</p>
+            </div>
+          </div>
+          <div class="col">
+            <img src="images/wind.png" alt="wind" />
+            <div>
+              <p class="wind">15 km/h</p>
+              <p>Wind Speed</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const apiKey = "1d1b64290e21e817ebd826d5520c543a";
+      const apiUrl =
+        "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+      const searchBox = document.querySelector(".search input");
+      const searchBtn = document.querySelector(".search button");
+      const weatherIcon = document.querySelector(".weather-icon");
+      const card = document.querySelector(".card");
+
+      // Geolocation API: Get weather on page load based on user's current location
+      window.addEventListener("load", () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            fetchWeatherByCoordinates(latitude, longitude);
+          });
+        }
+      });
+
+      async function fetchWeatherByCoordinates(lat, lon) {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+        );
+        const data = await response.json();
+        updateWeather(data);
+      }
+
+      async function checkWeather(city) {
+        if (!city) {
+          alert("Please enter a city name");
+          return;
+        }
+
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+        if (response.status == 404) {
+          document.querySelector(".error").style.display = "block";
+          document.querySelector(".weather").style.display = "none";
+        } else {
+          const data = await response.json();
+          updateWeather(data);
+        }
+      }
+
+      function updateWeather(data) {
+        document.querySelector(".city").innerHTML = data.name;
+        document.querySelector(".temp").innerHTML =
+          Math.round(data.main.temp) + "°C";
+        document.querySelector(".humidity").innerHTML =
+          data.main.humidity + "%";
+        document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+        const weatherMain = data.weather[0].main;
+        updateWeatherIcon(weatherMain);
+        updateBackground(weatherMain);
+
+        document.querySelector(".weather").style.display = "block";
+        document.querySelector(".error").style.display = "none";
+      }
+
+      function updateWeatherIcon(weatherMain) {
+        if (weatherMain === "Clouds") {
+          weatherIcon.src = "images/clouds.png";
+        } else if (weatherMain === "Clear") {
+          weatherIcon.src = "images/clear.png";
+        } else if (weatherMain === "Rain") {
+          weatherIcon.src = "images/rain.png";
+        } else if (weatherMain === "Drizzle") {
+          weatherIcon.src = "images/drizzle.png";
+        } else if (weatherMain === "Mist") {
+          weatherIcon.src = "images/mist.png";
+        } else if (weatherMain === "Snow") {
+          weatherIcon.src = "images/snow.png";
+        }
+      }
+
+      function updateBackground(weatherMain) {
+        if (weatherMain === "Clouds") {
+          card.style.background = "linear-gradient(135deg, #003366, #e0e0e0)";
+        } else if (weatherMain === "Clear") {
+          card.style.background = "linear-gradient(135deg, #f0e68c, #ffcc33)";
+        } else if (weatherMain === "Rain") {
+          card.style.background = "linear-gradient(135deg, #00bfff, #4682b4)";
+        } else if (weatherMain === "Drizzle") {
+          card.style.background = "linear-gradient(135deg, #a8dadc, #d0f4f7)";
+        } else if (weatherMain === "Mist") {
+          card.style.background = "linear-gradient(135deg, #fbc2eb, #a6c0fe)";
+        } else if (weatherMain === "Snow") {
+          card.style.background = "linear-gradient(135deg, #ffffff, #e0ffff)";
+        }
+      }
+
+      searchBtn.addEventListener("click", () => {
+        checkWeather(searchBox.value);
+      });
+
+      searchBox.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          checkWeather(searchBox.value);
+        }
+      });
+    </script>
+  </body>
+</html>
