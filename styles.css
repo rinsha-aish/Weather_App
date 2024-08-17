@@ -33,7 +33,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 20px;
 }
 
 .search input {
@@ -122,7 +121,7 @@ body {
 }
 
 /* Media Queries */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .search input {
     font-size: 16px;
     padding: 8px 20px;
@@ -219,4 +218,4 @@ body {
     padding: 20px 15px;
     margin: 50px auto;
   }
-}
+} */
